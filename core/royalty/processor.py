@@ -282,7 +282,7 @@ class RoyaltyProcessor:
             )
 
             # Alignment giữa
-            center_align = Alignment(horizontal='center', vertical='center')
+            left_align = Alignment(horizontal='left', vertical='center')
 
             # Màu vàng cho header và các cột nhuận bút
             yellow_fill = PatternFill(
@@ -294,7 +294,7 @@ class RoyaltyProcessor:
             for cell in ws[1]:
                 cell.font = font
                 cell.border = thin_border
-                cell.alignment = center_align
+                cell.alignment = left_align
                 cell.fill = yellow_fill
 
             # Tìm vị trí cột Link YouTube Timestamp
@@ -309,7 +309,7 @@ class RoyaltyProcessor:
                 for col_idx, cell in enumerate(row, start=1):
                     cell.font = font
                     cell.border = thin_border
-                    cell.alignment = center_align
+                    cell.alignment = left_align
 
                     # Tô màu vàng cho các ô nhuận bút CÓ GIÁ TRỊ
                     # Cột R (18): Mức nhuận bút
@@ -327,7 +327,6 @@ class RoyaltyProcessor:
                         if link_value and str(link_value).startswith('https://'):
                             cell.hyperlink = str(link_value)
                             cell.font = hyperlink_font
-                            cell.alignment = Alignment(horizontal='left', vertical='center')
 
             # Auto-fit columns
             for column_cells in ws.columns:
