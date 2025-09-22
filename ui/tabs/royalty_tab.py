@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QPushButton, QLabel, QLineEdit, QTextEdit, QProgressBar, 
     QGroupBox, QFileDialog, QMessageBox, QFormLayout,
-    QSpinBox, QFrame
+    QSpinBox, QFrame, QScrollArea, QSizePolicy
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QFont
@@ -67,8 +67,25 @@ class RoyaltyTab(QWidget):
         
     def _setup_ui(self):
         """Thiết lập giao diện"""
-        layout = QVBoxLayout(self)
-        layout.setSpacing(20)
+        # Main scroll area để tránh vỡ layout khi thu nhỏ
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        
+        # Content widget
+        content_widget = QWidget()
+        scroll_area.setWidget(content_widget)
+        
+        # Main layout cho scroll area
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(scroll_area)
+        
+        # Layout cho content
+        layout = QVBoxLayout(content_widget)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
         
         # Title
         title_label = QLabel("💎 Tính toán nhuận bút Premium")
@@ -81,13 +98,18 @@ class RoyaltyTab(QWidget):
         
         # Configuration
         config_layout = QHBoxLayout()
+        config_layout.setSpacing(15)
         
         # Left: Percentage settings
         percent_group = self._create_percentage_section()
+        percent_group.setMinimumWidth(200)
+        percent_group.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         config_layout.addWidget(percent_group)
         
         # Right: Royalty rates
         royalty_group = self._create_royalty_section()
+        royalty_group.setMinimumWidth(600)
+        royalty_group.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         config_layout.addWidget(royalty_group)
         
         layout.addLayout(config_layout)
