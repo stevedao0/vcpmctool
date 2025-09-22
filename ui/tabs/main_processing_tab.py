@@ -127,30 +127,8 @@ class MainProcessingTab(QWidget):
         self.process_btn = QPushButton("▶️ Bắt đầu xử lý")
         self.process_btn.setEnabled(False)
         self.process_btn.clicked.connect(self.process_files)
-        self.process_btn.setStyleSheet("""
-            QPushButton {
-                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                font-weight: 600;
-                border-radius: 10px;
-                font-size: 14px;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-            }
-            QPushButton:hover {
-                background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
-                transform: translateY(-2px);
-                box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
-            }
-            QPushButton:disabled {
-                background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-                color: #ffffff;
-                box-shadow: none;
-                transform: none;
-            }
-        """)
+        self.process_btn.setProperty("class", "success")
+        self.process_btn.setMinimumHeight(50)
         layout.addWidget(self.process_btn)
         
         # Progress bar

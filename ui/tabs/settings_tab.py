@@ -58,23 +58,7 @@ class SettingsTab(QWidget):
         
         self.apply_btn = QPushButton("✅ Áp dụng")
         self.apply_btn.clicked.connect(self._apply_settings)
-        self.apply_btn.setStyleSheet("""
-            QPushButton {
-                background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                font-weight: 600;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
-            }
-            QPushButton:hover {
-                background: linear-gradient(135deg, #106ebe 0%, #005a9e 100%);
-                transform: translateY(-1px);
-                box-shadow: 0 6px 16px rgba(0, 120, 212, 0.4);
-            }
-        """)
+        self.apply_btn.setProperty("class", "primary")
         button_layout.addWidget(self.apply_btn)
         
         layout.addLayout(button_layout)
