@@ -54,10 +54,10 @@ class MainWindow(QMainWindow):
         self.help_tab = HelpTab()
         
         # Thêm các tab
-        self.tab_widget.addTab(self.main_tab, "📁 Xử lý chính")
-        self.tab_widget.addTab(self.royalty_tab, "💰 Nhuận bút")
-        self.tab_widget.addTab(self.settings_tab, "⚙️ Cài đặt")
-        self.tab_widget.addTab(self.help_tab, "❓ Hướng dẫn")
+        self.tab_widget.addTab(self.main_tab, "Xử lý chính")
+        self.tab_widget.addTab(self.royalty_tab, "Nhuận bút")
+        self.tab_widget.addTab(self.settings_tab, "Cài đặt")
+        self.tab_widget.addTab(self.help_tab, "Hướng dẫn")
         
         layout.addWidget(self.tab_widget)
         
@@ -83,12 +83,12 @@ class MainWindow(QMainWindow):
         # Tools menu
         tools_menu = menubar.addMenu("&Tools")
         
-        process_action = QAction("📁 &Xử lý file", self)
+        process_action = QAction("&Xử lý file", self)
         process_action.setShortcut("F5")
         process_action.triggered.connect(self.main_tab.process_files)
         tools_menu.addAction(process_action)
         
-        royalty_action = QAction("💰 &Tính nhuận bút", self)
+        royalty_action = QAction("&Tính nhuận bút", self)
         royalty_action.setShortcut("F6")
         royalty_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(1))
         tools_menu.addAction(royalty_action)
@@ -102,28 +102,8 @@ class MainWindow(QMainWindow):
         
     def _setup_tool_bar(self):
         """Thiết lập toolbar"""
-        toolbar = QToolBar("Main Toolbar")
-        toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-        self.addToolBar(toolbar)
-        
-        # Open files action
-        open_action = QAction("📂 Mở file", self)
-        open_action.triggered.connect(self.main_tab.select_files)
-        toolbar.addAction(open_action)
-        
-        toolbar.addSeparator()
-        
-        # Process action
-        process_action = QAction("🚀 Xử lý", self)
-        process_action.triggered.connect(self.main_tab.process_files)
-        toolbar.addAction(process_action)
-        
-        toolbar.addSeparator()
-        
-        # Royalty action
-        royalty_action = QAction("💵 Nhuận bút", self)
-        royalty_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(1))
-        toolbar.addAction(royalty_action)
+        # Không tạo toolbar để tránh trùng lặp với tabs
+        pass
         
     def _setup_status_bar(self):
         """Thiết lập status bar"""
@@ -154,7 +134,7 @@ class MainWindow(QMainWindow):
             background-color: #2d2d2d;
         }
         QTabBar::tab {
-            background-color: #404040;
+            background-color: #f0f0f0;
             color: #ffffff;
             padding: 10px 20px;
             margin-right: 2px;
@@ -347,12 +327,13 @@ class MainWindow(QMainWindow):
         QTabBar::tab {
             background-color: #f8f9fa;
             color: #000000;
-            padding: 10px 20px;
+            padding: 12px 24px;
             margin-right: 2px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #d0d0d0;
             border-bottom: none;
             border-radius: 8px 8px 0px 0px;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 13px;
         }
         QTabBar::tab:selected {
             background-color: #0078d4;
@@ -360,7 +341,7 @@ class MainWindow(QMainWindow):
             border-color: #0078d4;
         }
         QTabBar::tab:hover {
-            background-color: #e9ecef;
+            background-color: #e0e0e0;
             color: #000000;
         }
         QGroupBox {
