@@ -28,7 +28,25 @@ class SettingsTab(QWidget):
         
     def _setup_ui(self):
         """Thiết lập giao diện"""
-        layout = QVBoxLayout(self)
+        # Main scroll area để tránh vỡ layout khi thu nhỏ
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        
+        # Content widget
+        content_widget = QWidget()
+        scroll_area.setWidget(content_widget)
+        
+        # Main layout cho scroll area
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(scroll_area)
+        
+        # Layout cho content
+        layout = QVBoxLayout(content_widget)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
         
         # Title
         title = QLabel("⚙️ Cài đặt ứng dụng")
@@ -74,10 +92,13 @@ class SettingsTab(QWidget):
     def _create_appearance_group(self) -> QGroupBox:
         """Tạo nhóm cài đặt giao diện"""
         group = QGroupBox("🎨 Giao diện")
+        group.setMinimumWidth(300)
+        group.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         layout = QFormLayout(group)
         
         # Theme selection
         self.theme_combo = QComboBox()
+        self.theme_combo.setMinimumWidth(150)
         self.theme_combo.addItems(["Sáng (Light)", "Tối (Dark)", "Premium Glass"])
         self.theme_combo.currentTextChanged.connect(self._on_theme_changed)
         layout.addRow("Chế độ hiển thị:", self.theme_combo)
@@ -85,6 +106,7 @@ class SettingsTab(QWidget):
         # Font size
         self.font_size_spin = QSpinBox()
         self.font_size_spin.setRange(8, 16)
+        self.font_size_spin.setMinimumWidth(80)
         self.font_size_spin.setSuffix(" pt")
         self.font_size_spin.valueChanged.connect(self._on_font_size_changed)
         layout.addRow("Kích thước font:", self.font_size_spin)
@@ -93,6 +115,7 @@ class SettingsTab(QWidget):
         self.ui_scale_slider = QSlider(Qt.Orientation.Horizontal)
         self.ui_scale_slider.setRange(80, 150)
         self.ui_scale_slider.setValue(100)
+        self.ui_scale_slider.setMinimumWidth(200)
         self.ui_scale_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.ui_scale_slider.setTickInterval(10)
         self.ui_scale_label = QLabel("100%")
@@ -108,6 +131,8 @@ class SettingsTab(QWidget):
     def _create_processing_group(self) -> QGroupBox:
         """Tạo nhóm cài đặt xử lý"""
         group = QGroupBox("⚙️ Xử lý dữ liệu")
+        group.setMinimumWidth(300)
+        group.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         layout = QFormLayout(group)
         
         # Auto proper case
@@ -131,12 +156,14 @@ class SettingsTab(QWidget):
         self.default_initial_spin = QSpinBox()
         self.default_initial_spin.setRange(1, 10)
         self.default_initial_spin.setValue(2)
+        self.default_initial_spin.setMinimumWidth(80)
         self.default_initial_spin.setSuffix(" năm")
         layout.addRow("Thời hạn ban đầu mặc định:", self.default_initial_spin)
         
         self.default_ext_spin = QSpinBox()
         self.default_ext_spin.setRange(1, 10)
         self.default_ext_spin.setValue(2)
+        self.default_ext_spin.setMinimumWidth(80)
         self.default_ext_spin.setSuffix(" năm")
         layout.addRow("Thời hạn gia hạn mặc định:", self.default_ext_spin)
         
@@ -145,17 +172,21 @@ class SettingsTab(QWidget):
     def _create_advanced_group(self) -> QGroupBox:
         """Tạo nhóm cài đặt nâng cao"""
         group = QGroupBox("🔧 Nâng cao")
+        group.setMinimumWidth(300)
+        group.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         layout = QFormLayout(group)
         
         # Max preview rows
         self.max_preview_spin = QSpinBox()
         self.max_preview_spin.setRange(10, 1000)
         self.max_preview_spin.setValue(50)
+        self.max_preview_spin.setMinimumWidth(100)
         self.max_preview_spin.setSuffix(" dòng")
         layout.addRow("Số dòng xem trước tối đa:", self.max_preview_spin)
         
         # Log level
         self.log_level_combo = QComboBox()
+        self.log_level_combo.setMinimumWidth(100)
         self.log_level_combo.addItems(["DEBUG", "INFO", "WARNING", "ERROR"])
         self.log_level_combo.setCurrentText("INFO")
         layout.addRow("Mức độ log:", self.log_level_combo)
@@ -187,11 +218,14 @@ class SettingsTab(QWidget):
     def _create_about_group(self) -> QGroupBox:
         """Tạo nhóm thông tin"""
         group = QGroupBox("ℹ️ Thông tin")
+        group.setMinimumWidth(300)
+        group.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         layout = QVBoxLayout(group)
         
         about_text = QTextEdit()
         about_text.setReadOnly(True)
         about_text.setMaximumHeight(120)
+        about_text.setMinimumWidth(280)
         about_text.setHtml("""
         <h3>🚀 VCPMC Tool v2.0 - Premium Edition</h3>
         <p><b>Công cụ xử lý dữ liệu tác phẩm âm nhạc</b></p>
