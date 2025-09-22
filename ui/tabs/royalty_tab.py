@@ -88,18 +88,21 @@ class RoyaltyTab(QWidget):
         layout.addWidget(file_group)
         
         # Configuration section
-        config_layout = QHBoxLayout()
-        config_layout.setSpacing(20)
+        main_config_layout = QVBoxLayout()
+        main_config_layout.setSpacing(20)
         
-        # Left: Percentage controls
+        # Top row: Percentage controls
+        percent_layout = QHBoxLayout()
         percent_group = self._create_percentage_section()
-        config_layout.addWidget(percent_group, 1)
+        percent_layout.addWidget(percent_group)
+        percent_layout.addStretch()
+        main_config_layout.addLayout(percent_layout)
         
-        # Right: Royalty rates
+        # Bottom: Royalty rates (full width)
         royalty_group = self._create_royalty_section()
-        config_layout.addWidget(royalty_group, 2)
+        main_config_layout.addWidget(royalty_group)
         
-        layout.addLayout(config_layout)
+        layout.addLayout(main_config_layout)
         
         # Process button
         self.process_btn = QPushButton("🚀 Xử lý file Premium")
@@ -189,83 +192,117 @@ class RoyaltyTab(QWidget):
         
     def _create_royalty_section(self) -> QGroupBox:
         """Tạo section nhập mức nhuận bút Premium"""
-        group = QGroupBox("💰 Mức nhuận bút theo loại hình")
+        group = QGroupBox("🔥 Mức nhuận bút theo loại hình")
         layout = QVBoxLayout(group)
         layout.setSpacing(16)
         
         # Create input fields for each usage type
         self.rate_inputs = {}
         
+        # Create grid layout for better organization
+        grid_layout = QGridLayout()
+        grid_layout.setSpacing(12)
+        
+        # Header row
+        header_style = """
+            QLabel {
+                font-weight: 700;
+                font-size: 14px;
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 12px;
+                border-radius: 8px;
+                text-align: center;
+            }
+        """
+        
+        type_header = QLabel("🎵 Loại hình")
+        type_header.setStyleSheet(header_style)
+        grid_layout.addWidget(type_header, 0, 0)
+        
+        full_header = QLabel("💰 Mức đầy đủ")
+        full_header.setStyleSheet(header_style)
+        grid_layout.addWidget(full_header, 0, 1)
+        
+        half_header = QLabel("🎵 Mức nửa bài")
+        half_header.setStyleSheet(header_style)
+        grid_layout.addWidget(half_header, 0, 2)
+        
+        renew_header = QLabel("🔄 Mức gia hạn")
+        renew_header.setStyleSheet(header_style)
+        grid_layout.addWidget(renew_header, 0, 3)
+        
         for usage_type in self.usage_types:
-            # Create card for each usage type
-            card = QFrame()
-            card.setStyleSheet("""
-                QFrame {
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 12px;
-                    padding: 16px;
-                    margin: 4px;
-                }
-            """)
-            card_layout = QHBoxLayout(card)
-            card_layout.setSpacing(16)
+            row = len(self.rate_inputs) + 1
             
-            # Icon and type name
+            # Type name label
             type_label = QLabel(f"🎵 {usage_type}")
-            type_label.setMinimumWidth(120)
             type_label.setStyleSheet("""
                 QLabel {
                     font-weight: 600;
                     font-size: 14px;
                     color: #ffffff;
+                    background: rgba(255, 255, 255, 0.05);
+                    padding: 12px;
+                    border-radius: 8px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
                 }
             """)
-            card_layout.addWidget(type_label)
+            grid_layout.addWidget(type_label, row, 0)
             
             # Full rate input
             full_input = QLineEdit("0")
             full_input.setPlaceholderText("Nhập mức đầy đủ")
-            full_input.setMinimumWidth(120)
+            full_input.setStyleSheet("""
+                QLineEdit {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #ffffff;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    padding: 12px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+                QLineEdit:focus {
+                    border-color: rgba(59, 130, 246, 0.6);
+                    background: rgba(255, 255, 255, 0.12);
+                    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+                }
+            """)
             full_input.textChanged.connect(self._recalculate_rates)
-            card_layout.addWidget(full_input)
-            
-            # Arrow
-            arrow_label = QLabel("→")
-            arrow_label.setStyleSheet("color: rgba(255, 255, 255, 0.5); font-size: 16px;")
-            card_layout.addWidget(arrow_label)
+            grid_layout.addWidget(full_input, row, 1)
             
             # Half rate display
             half_display = QLabel("0")
-            half_display.setMinimumWidth(80)
             half_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
             half_display.setStyleSheet("""
                 QLabel {
                     background: rgba(16, 185, 129, 0.2);
                     color: #10b981;
                     font-weight: 600;
-                    padding: 8px;
+                    padding: 12px;
                     border-radius: 8px;
                     border: 1px solid rgba(16, 185, 129, 0.3);
+                    font-size: 14px;
                 }
             """)
-            card_layout.addWidget(half_display)
+            grid_layout.addWidget(half_display, row, 2)
             
             # Renewal rate display
             renew_display = QLabel("0")
-            renew_display.setMinimumWidth(80)
             renew_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
             renew_display.setStyleSheet("""
                 QLabel {
                     background: rgba(245, 158, 11, 0.2);
                     color: #f59e0b;
                     font-weight: 600;
-                    padding: 8px;
+                    padding: 12px;
                     border-radius: 8px;
                     border: 1px solid rgba(245, 158, 11, 0.3);
+                    font-size: 14px;
                 }
             """)
-            card_layout.addWidget(renew_display)
+            grid_layout.addWidget(renew_display, row, 3)
             
             # Store references
             self.rate_inputs[usage_type.lower()] = {
@@ -274,8 +311,7 @@ class RoyaltyTab(QWidget):
                 'renew': renew_display
             }
             
-            layout.addWidget(card)
-        
+        layout.addLayout(grid_layout)
         return group
         
     def _create_progress_section(self) -> QGroupBox:
