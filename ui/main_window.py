@@ -266,13 +266,14 @@ class MainWindow(QMainWindow):
             padding: 10px 14px;
             border-radius: 8px;
             font-size: 13px;
+            min-height: 20px;
         }
         
         QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
             border-color: #64748b;
             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                 stop:0 #334155, stop:1 #1e293b);
-            box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.2);
+            outline: none;
         }
         
         /* === TABLES - ELEGANT DARK === */
@@ -282,44 +283,6 @@ class MainWindow(QMainWindow):
             color: #e2e8f0;
             gridline-color: #334155;
             border: 1px solid #334155;
-            border-radius: 8px;
-            selection-background-color: #3b82f6;
-            selection-color: #ffffff;
-        }
-        
-        QTableWidget::item {
-            padding: 12px 8px;
-            border-bottom: 1px solid #1e293b;
-            border-right: 1px solid #334155;
-        }
-        
-        QTableWidget::item:alternate {
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #334155, stop:1 #1e293b);
-        }
-        
-        QTableWidget::item:selected {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 #475569, stop:1 #64748b);
-            color: #ffffff;
-        }
-        
-        /* === TABLE INPUT CELLS === */
-        QTableWidget::item:selected {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 #475569, stop:1 #64748b);
-            color: #ffffff;
-        }
-        
-        QHeaderView::section {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 #6366f1, stop:1 #8b5cf6);
-            color: #ffffff;
-            padding: 12px 8px;
-            border: 1px solid #4c1d95;
-            font-weight: 700;
-            font-size: 12px;
-        }
         
         /* === LISTS === */
         QListWidget {

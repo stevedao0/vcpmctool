@@ -115,7 +115,7 @@ class RoyaltyTab(QWidget):
     def _create_royalty_section(self) -> QGroupBox:
         """Tạo section nhập mức nhuận bút"""
         group = QGroupBox("💰 Cấu hình mức nhuận bút")
-        layout = QVBoxLayout(group)
+        main_layout = QVBoxLayout(group)
         
         # Percentage controls
         percent_layout = QFormLayout()
@@ -134,51 +134,53 @@ class RoyaltyTab(QWidget):
         self.renew_percent_spin.valueChanged.connect(self._recalculate_rates)
         percent_layout.addRow("Tỷ lệ mức gia hạn:", self.renew_percent_spin)
         
-        layout.addLayout(percent_layout)
+        main_layout.addLayout(percent_layout)
         
-        # Royalty rates table
-        self.royalty_table = QTableWidget()
-        self.royalty_table.setRowCount(len(self.usage_types))
-        self.royalty_table.setColumnCount(4)
-        self.royalty_table.setHorizontalHeaderLabels([
-            "Loại hình", "Mức đầy đủ", "Mức nửa bài", "Mức gia hạn"
-        ])
+        # Royalty rates - Vertical layout
+        rates_layout = QVBoxLayout()
         
-        # Disable automatic editing to prevent double input boxes
-        self.royalty_table.setEditTriggers(QTableWidget.EditTrigger.DoubleClicked)
+        # Create input fields for each usage type
+        self.rate_inputs = {}
         
-        # Populate table
         for row, usage_type in enumerate(self.usage_types):
-            # Usage type (read-only)
-            item = QTableWidgetItem(usage_type)
-            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            self.royalty_table.setItem(row, 0, item)
+            # Create group for each usage type
+            usage_group = QGroupBox(f"🎵 {usage_type}")
+            usage_layout = QHBoxLayout(usage_group)
             
-            # Full rate (editable)
-            full_item = QTableWidgetItem("0")
-            full_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.royalty_table.setItem(row, 1, full_item)
+            # Full rate input
+            full_label = QLabel("Mức đầy đủ:")
+            full_input = QLineEdit("0")
+            full_input.setPlaceholderText("Nhập mức nhuận bút đầy đủ")
+            full_input.textChanged.connect(self._recalculate_rates)
             
-            # Half rate (calculated, read-only)
-            half_item = QTableWidgetItem("0")
-            half_item.setFlags(half_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            half_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.royalty_table.setItem(row, 2, half_item)
+            # Half rate display
+            half_label = QLabel("Mức nửa bài:")
+            half_display = QLabel("0")
+            half_display.setStyleSheet("color: #10b981; font-weight: 600;")
             
-            # Renewal rate (calculated, read-only)
-            renew_item = QTableWidgetItem("0")
-            renew_item.setFlags(renew_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            renew_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.royalty_table.setItem(row, 3, renew_item)
+            # Renewal rate display
+            renew_label = QLabel("Mức gia hạn:")
+            renew_display = QLabel("0")
+            renew_display.setStyleSheet("color: #f59e0b; font-weight: 600;")
             
-        # Connect cell changed signal
-        self.royalty_table.cellChanged.connect(self._on_cell_changed)
+            # Add to layout
+            usage_layout.addWidget(full_label)
+            usage_layout.addWidget(full_input)
+            usage_layout.addWidget(half_label)
+            usage_layout.addWidget(half_display)
+            usage_layout.addWidget(renew_label)
+            usage_layout.addWidget(renew_display)
+            
+            # Store references
+            self.rate_inputs[usage_type.lower()] = {
+                'full': full_input,
+                'half': half_display,
+                'renew': renew_display
+            }
+            
+            rates_layout.addWidget(usage_group)
         
-        # Auto-resize columns
-        header = self.royalty_table.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        
-        layout.addWidget(self.royalty_table)
+        main_layout.addLayout(rates_layout)
         
         return group
         
@@ -226,62 +228,42 @@ class RoyaltyTab(QWidget):
             self.process_btn.setEnabled(True)
             self.add_log(f"Đã chọn file: {Path(file_path).name}")
             
-    def _on_cell_changed(self, row: int, column: int):
-        """Xử lý khi cell thay đổi"""
-        if column == 1:  # Full rate column
-            self._recalculate_rates()
-            
     def _recalculate_rates(self):
         """Tính lại mức nửa bài và gia hạn"""
         half_percent = self.half_percent_spin.value() / 100.0
         renew_percent = self.renew_percent_spin.value() / 100.0
         
-        for row in range(self.royalty_table.rowCount()):
+        for usage_type, inputs in self.rate_inputs.items():
             try:
-                # Get full rate
-                full_item = self.royalty_table.item(row, 1)
-                if full_item:
-                    full_rate = float(full_item.text() or 0)
-                    
-                    # Calculate and set half rate
-                    half_rate = int(full_rate * half_percent)
-                    half_item = self.royalty_table.item(row, 2)
-                    if half_item:
-                        half_item.setText(str(half_rate))
-                        
-                    # Calculate and set renewal rate
-                    renew_rate = int(full_rate * renew_percent)
-                    renew_item = self.royalty_table.item(row, 3)
-                    if renew_item:
-                        renew_item.setText(str(renew_rate))
-                        
+                full_rate = float(inputs['full'].text() or 0)
+                
+                # Calculate and set half rate
+                half_rate = int(full_rate * half_percent)
+                inputs['half'].setText(f"{half_rate:,}")
+                
+                # Calculate and set renewal rate
+                renew_rate = int(full_rate * renew_percent)
+                inputs['renew'].setText(f"{renew_rate:,}")
+                
             except (ValueError, TypeError):
-                # Set to 0 if invalid input
-                half_item = self.royalty_table.item(row, 2)
-                if half_item:
-                    half_item.setText("0")
-                renew_item = self.royalty_table.item(row, 3)
-                if renew_item:
-                    renew_item.setText("0")
                     
     def _collect_royalty_data(self) -> dict:
         """Thu thập dữ liệu nhuận bút từ bảng"""
         royalty_dict = {}
         has_valid_data = False
         
-        for row in range(self.royalty_table.rowCount()):
+        for usage_type, inputs in self.rate_inputs.items():
             try:
-                usage_type = self.royalty_table.item(row, 0).text()
-                full_rate = int(float(self.royalty_table.item(row, 1).text() or 0))
-                half_rate = int(float(self.royalty_table.item(row, 2).text() or 0))
-                renew_rate = int(float(self.royalty_table.item(row, 3).text() or 0))
+                full_rate = int(float(inputs['full'].text() or 0))
+                half_rate = int(float(inputs['half'].text().replace(',', '') or 0))
+                renew_rate = int(float(inputs['renew'].text().replace(',', '') or 0))
                 
-                royalty_dict[usage_type.lower()] = (full_rate, half_rate, renew_rate)
+                royalty_dict[usage_type] = (full_rate, half_rate, renew_rate)
                 
                 if full_rate > 0:
                     has_valid_data = True
                     
-            except (ValueError, TypeError, AttributeError) as e:
+            except (ValueError, TypeError) as e:
                 self.add_log(f"Lỗi nhập liệu cho {usage_type}: {e}")
                 return None
                 
