@@ -1,4 +1,4 @@
-# vcpmctool/ui/tabs/royalty_tab.py - Premium Glass Morphism Version
+# vcpmctool/ui/tabs/royalty_tab.py - Fixed Version
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QPushButton, QLabel, QLineEdit, QTextEdit, QProgressBar, 
@@ -41,7 +41,7 @@ class RoyaltyWorker(QThread):
 
 
 class RoyaltyTab(QWidget):
-    """Tab tính nhuận bút với Premium Glass Morphism UI"""
+    """Tab tính nhuận bút"""
     
     def __init__(self, logger: Logger):
         super().__init__()
@@ -60,248 +60,142 @@ class RoyaltyTab(QWidget):
             "Teaser"
         ]
         
+        # Dictionary lưu input fields
+        self.rate_inputs = {}
+        
         self._setup_ui()
         
     def _setup_ui(self):
-        """Thiết lập giao diện Premium"""
+        """Thiết lập giao diện"""
         layout = QVBoxLayout(self)
-        layout.setSpacing(24)
-        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(20)
         
-        # Header với title
-        header_layout = QHBoxLayout()
+        # Title
         title_label = QLabel("💎 Tính toán nhuận bút Premium")
-        title_label.setStyleSheet("""
-            QLabel {
-                font-size: 28px;
-                font-weight: 700;
-                color: #ffffff;
-                margin-bottom: 8px;
-            }
-        """)
-        header_layout.addWidget(title_label)
-        header_layout.addStretch()
-        layout.addLayout(header_layout)
+        title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: white; margin-bottom: 10px;")
+        layout.addWidget(title_label)
         
-        # File selection section
+        # File selection
         file_group = self._create_file_section()
         layout.addWidget(file_group)
         
-        # Configuration section
-        main_config_layout = QVBoxLayout()
-        main_config_layout.setSpacing(20)
+        # Configuration
+        config_layout = QHBoxLayout()
         
-        # Top row: Percentage controls
-        percent_layout = QHBoxLayout()
+        # Left: Percentage settings
         percent_group = self._create_percentage_section()
-        percent_layout.addWidget(percent_group)
-        percent_layout.addStretch()
-        main_config_layout.addLayout(percent_layout)
+        config_layout.addWidget(percent_group)
         
-        # Bottom: Royalty rates (full width)
+        # Right: Royalty rates
         royalty_group = self._create_royalty_section()
-        main_config_layout.addWidget(royalty_group)
+        config_layout.addWidget(royalty_group)
         
-        layout.addLayout(main_config_layout)
+        layout.addLayout(config_layout)
         
         # Process button
         self.process_btn = QPushButton("🚀 Xử lý file Premium")
         self.process_btn.setEnabled(False)
         self.process_btn.clicked.connect(self.process_file)
-        self.process_btn.setProperty("class", "success")
-        self.process_btn.setMinimumHeight(60)
-        self.process_btn.setStyleSheet("""
-            QPushButton {
-                font-size: 16px;
-                font-weight: 700;
-            }
-        """)
+        self.process_btn.setMinimumHeight(50)
         layout.addWidget(self.process_btn)
         
-        # Progress section
-        progress_group = self._create_progress_section()
-        layout.addWidget(progress_group)
+        # Progress
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setVisible(False)
+        layout.addWidget(self.progress_bar)
         
-        # Log section
-        log_group = self._create_log_section()
+        self.progress_label = QLabel("Sẵn sàng xử lý")
+        self.progress_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.progress_label)
+        
+        # Log
+        log_group = QGroupBox("📝 Nhật ký xử lý")
+        log_layout = QVBoxLayout(log_group)
+        
+        self.log_text = QTextEdit()
+        self.log_text.setReadOnly(True)
+        self.log_text.setMaximumHeight(150)
+        log_layout.addWidget(self.log_text)
+        
         layout.addWidget(log_group)
         
     def _create_file_section(self) -> QGroupBox:
-        """Tạo section chọn file Premium"""
+        """Tạo section chọn file"""
         group = QGroupBox("📁 Chọn file Excel")
         layout = QVBoxLayout(group)
-        layout.setSpacing(16)
-        
-        # File selection area
-        file_frame = QFrame()
-        file_frame.setStyleSheet("""
-            QFrame {
-                background: rgba(255, 255, 255, 0.05);
-                border: 2px dashed rgba(255, 255, 255, 0.3);
-                border-radius: 16px;
-                padding: 20px;
-            }
-        """)
-        file_layout = QVBoxLayout(file_frame)
         
         self.select_file_btn = QPushButton("📂 Chọn file Excel")
         self.select_file_btn.clicked.connect(self.select_file)
-        self.select_file_btn.setMinimumHeight(50)
-        file_layout.addWidget(self.select_file_btn)
+        layout.addWidget(self.select_file_btn)
         
-        self.file_label = QLabel("🎯 Chưa chọn file - Kéo thả file vào đây hoặc click để chọn")
+        self.file_label = QLabel("Chưa chọn file")
         self.file_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.file_label.setStyleSheet("""
-            QLabel {
-                color: rgba(255, 255, 255, 0.7);
-                font-style: italic;
-                font-size: 14px;
-                padding: 10px;
-            }
-        """)
-        file_layout.addWidget(self.file_label)
+        self.file_label.setStyleSheet("color: #888; font-style: italic;")
+        layout.addWidget(self.file_label)
         
-        layout.addWidget(file_frame)
         return group
         
     def _create_percentage_section(self) -> QGroupBox:
         """Tạo section cấu hình tỷ lệ"""
         group = QGroupBox("⚙️ Cấu hình tỷ lệ")
         layout = QFormLayout(group)
-        layout.setSpacing(20)
         
         # Half percentage
         self.half_percent_spin = QSpinBox()
         self.half_percent_spin.setRange(1, 100)
         self.half_percent_spin.setValue(50)
         self.half_percent_spin.setSuffix("%")
-        self.half_percent_spin.setMinimumHeight(40)
         self.half_percent_spin.valueChanged.connect(self._recalculate_rates)
-        layout.addRow("🎵 Tỷ lệ mức nửa bài:", self.half_percent_spin)
+        layout.addRow("Tỷ lệ mức nửa bài:", self.half_percent_spin)
         
         # Renewal percentage
         self.renew_percent_spin = QSpinBox()
         self.renew_percent_spin.setRange(1, 100)
         self.renew_percent_spin.setValue(40)
         self.renew_percent_spin.setSuffix("%")
-        self.renew_percent_spin.setMinimumHeight(40)
         self.renew_percent_spin.valueChanged.connect(self._recalculate_rates)
-        layout.addRow("🔄 Tỷ lệ mức gia hạn:", self.renew_percent_spin)
+        layout.addRow("Tỷ lệ mức gia hạn:", self.renew_percent_spin)
         
         return group
         
     def _create_royalty_section(self) -> QGroupBox:
-        """Tạo section nhập mức nhuận bút Premium"""
+        """Tạo section nhập mức nhuận bút"""
         group = QGroupBox("🔥 Mức nhuận bút theo loại hình")
         layout = QVBoxLayout(group)
-        layout.setSpacing(16)
         
-        # Create input fields for each usage type
-        self.rate_inputs = {}
-        
-        # Create grid layout for better organization
+        # Create grid for inputs
         grid_layout = QGridLayout()
-        grid_layout.setSpacing(12)
         
-        # Header row
-        header_style = """
-            QLabel {
-                font-weight: 700;
-                font-size: 14px;
-                color: #ffffff;
-                background: rgba(255, 255, 255, 0.1);
-                padding: 12px;
-                border-radius: 8px;
-                text-align: center;
-            }
-        """
+        # Headers
+        grid_layout.addWidget(QLabel("Loại hình"), 0, 0)
+        grid_layout.addWidget(QLabel("Mức đầy đủ"), 0, 1)
+        grid_layout.addWidget(QLabel("Mức nửa bài"), 0, 2)
+        grid_layout.addWidget(QLabel("Mức gia hạn"), 0, 3)
         
-        type_header = QLabel("🎵 Loại hình")
-        type_header.setStyleSheet(header_style)
-        grid_layout.addWidget(type_header, 0, 0)
-        
-        full_header = QLabel("💰 Mức đầy đủ")
-        full_header.setStyleSheet(header_style)
-        grid_layout.addWidget(full_header, 0, 1)
-        
-        half_header = QLabel("🎵 Mức nửa bài")
-        half_header.setStyleSheet(header_style)
-        grid_layout.addWidget(half_header, 0, 2)
-        
-        renew_header = QLabel("🔄 Mức gia hạn")
-        renew_header.setStyleSheet(header_style)
-        grid_layout.addWidget(renew_header, 0, 3)
-        
-        for usage_type in self.usage_types:
-            row = len(self.rate_inputs) + 1
+        # Create inputs for each usage type
+        for i, usage_type in enumerate(self.usage_types):
+            row = i + 1
             
-            # Type name label
-            type_label = QLabel(f"🎵 {usage_type}")
-            type_label.setStyleSheet("""
-                QLabel {
-                    font-weight: 600;
-                    font-size: 14px;
-                    color: #ffffff;
-                    background: rgba(255, 255, 255, 0.05);
-                    padding: 12px;
-                    border-radius: 8px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
-            """)
+            # Type label
+            type_label = QLabel(usage_type)
             grid_layout.addWidget(type_label, row, 0)
             
             # Full rate input
             full_input = QLineEdit("0")
             full_input.setPlaceholderText("Nhập mức đầy đủ")
-            full_input.setStyleSheet("""
-                QLineEdit {
-                    background: rgba(255, 255, 255, 0.08);
-                    color: #ffffff;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    padding: 12px;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    font-weight: 600;
-                }
-                QLineEdit:focus {
-                    border-color: rgba(59, 130, 246, 0.6);
-                    background: rgba(255, 255, 255, 0.12);
-                    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-                }
-            """)
             full_input.textChanged.connect(self._recalculate_rates)
             grid_layout.addWidget(full_input, row, 1)
             
             # Half rate display
             half_display = QLabel("0")
             half_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            half_display.setStyleSheet("""
-                QLabel {
-                    background: rgba(16, 185, 129, 0.2);
-                    color: #10b981;
-                    font-weight: 600;
-                    padding: 12px;
-                    border-radius: 8px;
-                    border: 1px solid rgba(16, 185, 129, 0.3);
-                    font-size: 14px;
-                }
-            """)
+            half_display.setStyleSheet("background: #e8f5e8; color: #2d5a2d; padding: 5px; border-radius: 4px;")
             grid_layout.addWidget(half_display, row, 2)
             
             # Renewal rate display
             renew_display = QLabel("0")
             renew_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            renew_display.setStyleSheet("""
-                QLabel {
-                    background: rgba(245, 158, 11, 0.2);
-                    color: #f59e0b;
-                    font-weight: 600;
-                    padding: 12px;
-                    border-radius: 8px;
-                    border: 1px solid rgba(245, 158, 11, 0.3);
-                    font-size: 14px;
-                }
-            """)
+            renew_display.setStyleSheet("background: #fff3cd; color: #856404; padding: 5px; border-radius: 4px;")
             grid_layout.addWidget(renew_display, row, 3)
             
             # Store references
@@ -312,44 +206,6 @@ class RoyaltyTab(QWidget):
             }
             
         layout.addLayout(grid_layout)
-        return group
-        
-    def _create_progress_section(self) -> QGroupBox:
-        """Tạo section tiến trình Premium"""
-        group = QGroupBox("📊 Tiến trình xử lý")
-        layout = QVBoxLayout(group)
-        layout.setSpacing(12)
-        
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setVisible(False)
-        self.progress_bar.setMinimumHeight(32)
-        layout.addWidget(self.progress_bar)
-        
-        self.progress_label = QLabel("✨ Sẵn sàng xử lý")
-        self.progress_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.progress_label.setStyleSheet("""
-            QLabel {
-                color: rgba(255, 255, 255, 0.8);
-                font-style: italic;
-                font-size: 14px;
-                padding: 8px;
-            }
-        """)
-        layout.addWidget(self.progress_label)
-        
-        return group
-        
-    def _create_log_section(self) -> QGroupBox:
-        """Tạo section log Premium"""
-        group = QGroupBox("📝 Nhật ký xử lý")
-        layout = QVBoxLayout(group)
-        
-        self.log_text = QTextEdit()
-        self.log_text.setReadOnly(True)
-        self.log_text.setMaximumHeight(180)
-        self.log_text.setFont(QFont("JetBrains Mono", 10))
-        layout.addWidget(self.log_text)
-        
         return group
         
     def select_file(self):
@@ -363,17 +219,10 @@ class RoyaltyTab(QWidget):
         
         if file_path:
             self.input_file_path = file_path
-            self.file_label.setText(f"✅ Đã chọn: {Path(file_path).name}")
-            self.file_label.setStyleSheet("""
-                QLabel {
-                    color: #10b981;
-                    font-weight: 600;
-                    font-size: 14px;
-                    padding: 10px;
-                }
-            """)
+            self.file_label.setText(f"Đã chọn: {Path(file_path).name}")
+            self.file_label.setStyleSheet("color: #28a745; font-weight: bold;")
             self.process_btn.setEnabled(True)
-            self.add_log(f"📁 Đã chọn file: {Path(file_path).name}")
+            self.add_log(f"Đã chọn file: {Path(file_path).name}")
             
     def _recalculate_rates(self):
         """Tính lại mức nửa bài và gia hạn"""
@@ -412,14 +261,14 @@ class RoyaltyTab(QWidget):
                     has_valid_data = True
                     
             except (ValueError, TypeError) as e:
-                self.add_log(f"❌ Lỗi nhập liệu cho {usage_type}: {e}")
+                self.add_log(f"Lỗi nhập liệu cho {usage_type}: {e}")
                 return None
                 
         if not has_valid_data:
-            self.add_log("⚠️ Vui lòng nhập ít nhất một mức nhuận bút!")
+            self.add_log("Vui lòng nhập ít nhất một mức nhuận bút!")
             return None
             
-        self.add_log(f"✅ Đã thu thập mức nhuận bút cho {len(royalty_dict)} loại hình")
+        self.add_log(f"Đã thu thập mức nhuận bút cho {len(royalty_dict)} loại hình")
         return royalty_dict
         
     def process_file(self):
@@ -441,7 +290,7 @@ class RoyaltyTab(QWidget):
         self.process_btn.setEnabled(False)
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
-        self.progress_label.setText("🚀 Đang xử lý...")
+        self.progress_label.setText("Đang xử lý...")
         
         # Create processor and worker
         self.processor = RoyaltyProcessor(royalty_dict)
@@ -454,12 +303,12 @@ class RoyaltyTab(QWidget):
         
         # Start processing
         self.worker.start()
-        self.add_log("🚀 Bắt đầu xử lý file nhuận bút Premium...")
+        self.add_log("Bắt đầu xử lý file nhuận bút...")
         
     def _update_progress(self, value: float):
         """Cập nhật tiến trình"""
         self.progress_bar.setValue(int(value))
-        self.progress_label.setText(f"⚡ Đang xử lý... {value:.1f}%")
+        self.progress_label.setText(f"Đang xử lý... {value:.1f}%")
         
     def _on_processing_finished(self, success: bool, message: str):
         """Xử lý khi hoàn tất"""
@@ -467,13 +316,13 @@ class RoyaltyTab(QWidget):
         self.progress_bar.setVisible(False)
         
         if success:
-            self.progress_label.setText("🎉 Hoàn tất!")
+            self.progress_label.setText("Hoàn tất!")
             self.add_log(f"✅ {message}")
-            QMessageBox.information(self, "Thành công", f"🎉 {message}")
+            QMessageBox.information(self, "Thành công", message)
         else:
-            self.progress_label.setText("❌ Lỗi!")
+            self.progress_label.setText("Lỗi!")
             self.add_log(f"❌ {message}")
-            QMessageBox.critical(self, "Lỗi", f"❌ {message}")
+            QMessageBox.critical(self, "Lỗi", message)
             
     def add_log(self, message: str):
         """Thêm log với timestamp"""
