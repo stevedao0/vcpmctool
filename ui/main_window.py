@@ -23,8 +23,8 @@ class MainWindow(QMainWindow):
         self.logger = logger
         
         self.setWindowTitle("VCPMC Tool v2.0 - Premium Edition")
-        self.setMinimumSize(1200, 800)
-        self.resize(1400, 900)
+        self.setMinimumSize(1000, 700)
+        self.resize(1300, 850)
         
         self._setup_ui()
         self._setup_menu_bar()

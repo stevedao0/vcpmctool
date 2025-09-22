@@ -201,22 +201,29 @@ class RoyaltyTab(QWidget):
             # Type label
             type_label = QLabel(usage_type)
             grid_layout.addWidget(type_label, row, 0)
+            type_label.setMinimumWidth(80)
             
             # Full rate input
             full_input = QLineEdit("0")
             full_input.setPlaceholderText("Nhập mức đầy đủ")
+            full_input.setMinimumWidth(100)
+            full_input.setMaximumWidth(150)
             full_input.textChanged.connect(self._recalculate_rates)
             grid_layout.addWidget(full_input, row, 1)
             
             # Half rate display
             half_display = QLabel("0")
             half_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            half_display.setMinimumWidth(80)
+            half_display.setMaximumWidth(120)
             half_display.setStyleSheet("background: #e8f5e8; color: #2d5a2d; padding: 5px; border-radius: 4px;")
             grid_layout.addWidget(half_display, row, 2)
             
             # Renewal rate display
             renew_display = QLabel("0")
             renew_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            renew_display.setMinimumWidth(80)
+            renew_display.setMaximumWidth(120)
             renew_display.setStyleSheet("background: #fff3cd; color: #856404; padding: 5px; border-radius: 4px;")
             grid_layout.addWidget(renew_display, row, 3)
             
