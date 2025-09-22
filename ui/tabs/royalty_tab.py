@@ -144,6 +144,9 @@ class RoyaltyTab(QWidget):
             "Loại hình", "Mức đầy đủ", "Mức nửa bài", "Mức gia hạn"
         ])
         
+        # Disable automatic editing to prevent double input boxes
+        self.royalty_table.setEditTriggers(QTableWidget.EditTrigger.DoubleClicked)
+        
         # Populate table
         for row, usage_type in enumerate(self.usage_types):
             # Usage type (read-only)
@@ -153,18 +156,19 @@ class RoyaltyTab(QWidget):
             
             # Full rate (editable)
             full_item = QTableWidgetItem("0")
+            full_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.royalty_table.setItem(row, 1, full_item)
             
             # Half rate (calculated, read-only)
             half_item = QTableWidgetItem("0")
             half_item.setFlags(half_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            half_item.setBackground(Qt.GlobalColor.lightGray)
+            half_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.royalty_table.setItem(row, 2, half_item)
             
             # Renewal rate (calculated, read-only)
             renew_item = QTableWidgetItem("0")
             renew_item.setFlags(renew_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            renew_item.setBackground(Qt.GlobalColor.lightGray)
+            renew_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.royalty_table.setItem(row, 3, renew_item)
             
         # Connect cell changed signal

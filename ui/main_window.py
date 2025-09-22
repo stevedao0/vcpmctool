@@ -305,20 +305,10 @@ class MainWindow(QMainWindow):
         }
         
         /* === TABLE INPUT CELLS === */
-        QTableWidget QLineEdit, QTableWidget QSpinBox {
-            background: transparent;
-            border: none;
-            padding: 8px 12px;
-            color: #e2e8f0;
-            font-size: 13px;
-            border-radius: 4px;
-        }
-        
-        QTableWidget QLineEdit:focus, QTableWidget QSpinBox:focus {
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #334155, stop:1 #475569);
-            border: 1px solid #64748b;
-            box-shadow: none;
+        QTableWidget::item:selected {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                stop:0 #475569, stop:1 #64748b);
+            color: #ffffff;
         }
         
         QHeaderView::section {
