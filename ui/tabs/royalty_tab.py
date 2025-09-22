@@ -246,6 +246,7 @@ class RoyaltyTab(QWidget):
                 inputs['renew'].setText(f"{renew_rate:,}")
                 
             except (ValueError, TypeError):
+                pass
                     
     def _collect_royalty_data(self) -> dict:
         """Thu thập dữ liệu nhuận bút từ bảng"""
