@@ -1,8 +1,5 @@
 # vcpmctool/services/settings.py
-from flet import ThemeMode
-
-
 class Settings:
     def __init__(self):
-        self.theme_mode = ThemeMode.LIGHT
+        self.theme_mode = "light"  # "light" or "dark"
         self.auto_propercase = True
