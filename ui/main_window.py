@@ -269,9 +269,10 @@ class MainWindow(QMainWindow):
         }
         
         QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
-            border-color: #3b82f6;
+            border-color: #64748b;
             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #1e293b, stop:1 #1e40af);
+                stop:0 #334155, stop:1 #1e293b);
+            box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.2);
         }
         
         /* === TABLES - ELEGANT DARK === */
@@ -289,11 +290,35 @@ class MainWindow(QMainWindow):
         QTableWidget::item {
             padding: 12px 8px;
             border-bottom: 1px solid #1e293b;
+            border-right: 1px solid #334155;
         }
         
         QTableWidget::item:alternate {
             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                 stop:0 #334155, stop:1 #1e293b);
+        }
+        
+        QTableWidget::item:selected {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                stop:0 #475569, stop:1 #64748b);
+            color: #ffffff;
+        }
+        
+        /* === TABLE INPUT CELLS === */
+        QTableWidget QLineEdit, QTableWidget QSpinBox {
+            background: transparent;
+            border: none;
+            padding: 8px 12px;
+            color: #e2e8f0;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+        
+        QTableWidget QLineEdit:focus, QTableWidget QSpinBox:focus {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                stop:0 #334155, stop:1 #475569);
+            border: 1px solid #64748b;
+            box-shadow: none;
         }
         
         QHeaderView::section {
