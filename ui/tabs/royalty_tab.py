@@ -93,8 +93,8 @@ class RoyaltyTab(QWidget):
                 background-color: #218838;
             }
             QPushButton:disabled {
-                background-color: #cccccc;
-                color: #666666;
+                background-color: #6c757d;
+                color: #ffffff;
             }
         """)
         layout.addWidget(self.process_btn)

@@ -129,19 +129,20 @@ class MainProcessingTab(QWidget):
         self.process_btn.clicked.connect(self.process_files)
         self.process_btn.setStyleSheet("""
             QPushButton {
-                background-color: #0078d4;
+                background-color: #28a745;
                 color: white;
                 border: none;
                 padding: 10px;
                 font-weight: bold;
-                border-radius: 5px;
+                border-radius: 6px;
+                font-size: 14px;
             }
             QPushButton:hover {
-                background-color: #106ebe;
+                background-color: #218838;
             }
             QPushButton:disabled {
-                background-color: #cccccc;
-                color: #666666;
+                background-color: #6c757d;
+                color: #ffffff;
             }
         """)
         layout.addWidget(self.process_btn)
