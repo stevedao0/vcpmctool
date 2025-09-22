@@ -29,7 +29,11 @@ class MainWindow(QMainWindow):
         self._setup_ui()
         self._setup_menu_bar()
         self._setup_status_bar()
-        self._apply_premium_theme()
+        self._apply_theme(self.settings.theme_mode)
+        
+        # Connect settings signals
+        if hasattr(self.settings_tab, 'theme_changed'):
+            self.settings_tab.theme_changed.connect(self._apply_theme)
         
     def _setup_ui(self):
         """Thiết lập giao diện chính"""
@@ -103,6 +107,121 @@ class MainWindow(QMainWindow):
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("🚀 Premium Edition - Sẵn sàng")
+        
+    def _apply_theme(self, theme_mode="premium"):
+        """Áp dụng theme theo chế độ"""
+        if theme_mode == "light":
+            self._apply_light_theme()
+        elif theme_mode == "dark":
+            self._apply_dark_theme()
+        else:
+            self._apply_premium_theme()
+            
+    def _apply_light_theme(self):
+        """Áp dụng Light Theme"""
+        light_stylesheet = """
+        QMainWindow {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #f8f9fa, stop:1 #e9ecef);
+            color: #212529;
+        }
+        
+        QWidget {
+            background-color: transparent;
+            color: #212529;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        QGroupBox {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-weight: 600;
+        }
+        
+        QPushButton {
+            background: #ffffff;
+            color: #495057;
+            border: 1px solid #ced4da;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        QPushButton:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+        }
+        
+        QPushButton[class="primary"] {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        QLineEdit, QSpinBox, QComboBox {
+            background: white;
+            border: 1px solid #ced4da;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        """
+        self.setStyleSheet(light_stylesheet)
+        
+    def _apply_dark_theme(self):
+        """Áp dụng Dark Theme"""
+        dark_stylesheet = """
+        QMainWindow {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #2c3e50, stop:1 #34495e);
+            color: #ecf0f1;
+        }
+        
+        QWidget {
+            background-color: transparent;
+            color: #ecf0f1;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        QGroupBox {
+            background: rgba(52, 73, 94, 0.8);
+            border: 1px solid #5d6d7e;
+            border-radius: 8px;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-weight: 600;
+        }
+        
+        QPushButton {
+            background: #34495e;
+            color: #ecf0f1;
+            border: 1px solid #5d6d7e;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        QPushButton:hover {
+            background: #5d6d7e;
+        }
+        
+        QPushButton[class="primary"] {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        QLineEdit, QSpinBox, QComboBox {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border: 1px solid #5d6d7e;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        """
+        self.setStyleSheet(dark_stylesheet)
         
     def _apply_premium_theme(self):
         """Áp dụng Premium Glass Morphism Theme"""
@@ -483,7 +602,3 @@ class MainWindow(QMainWindow):
     def update_status(self, message: str):
         """Cập nhật status bar"""
         self.status_bar.showMessage(f"🚀 {message}")
-        
-    def toggle_theme(self):
-        """Chuyển đổi theme (Premium luôn dùng Glass Morphism)"""
-        self._apply_premium_theme()
