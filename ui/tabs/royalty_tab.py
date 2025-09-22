@@ -81,20 +81,26 @@ class RoyaltyTab(QWidget):
         self.process_btn.clicked.connect(self.process_file)
         self.process_btn.setStyleSheet("""
             QPushButton {
-                background-color: #28a745;
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
                 color: white;
                 border: none;
-                padding: 12px;
-                font-weight: bold;
+                padding: 14px 28px;
+                font-weight: 600;
                 font-size: 14px;
-                border-radius: 6px;
+                border-radius: 10px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
             }
             QPushButton:hover {
-                background-color: #218838;
+                background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
             }
             QPushButton:disabled {
-                background-color: #6c757d;
+                background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
                 color: #ffffff;
+                box-shadow: none;
+                transform: none;
             }
         """)
         layout.addWidget(self.process_btn)
