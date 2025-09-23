@@ -94,7 +94,6 @@ class AIOWorker(QThread):
         # Kiểm tra dependencies trước
         check_cmd = [sys.executable, "-c", "import yt_dlp, pandas, openpyxl; print('OK')"]
         try:
-            import subprocess
             result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
             if result.returncode != 0 or "OK" not in result.stdout:
                 raise Exception("Missing dependencies: yt-dlp, pandas, or openpyxl")
@@ -572,7 +571,6 @@ class UpdateTab(QWidget):
     def _check_dependencies(self) -> bool:
         """Kiểm tra dependencies cần thiết"""
         try:
-            import subprocess
             check_cmd = [sys.executable, "-c", "import yt_dlp, pandas, openpyxl"]
             result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
             
@@ -612,7 +610,6 @@ class UpdateTab(QWidget):
         """Kiểm tra dependencies không đồng bộ"""
         def check():
             try:
-                import subprocess
                 result = subprocess.run(
                     [sys.executable, "-c", "import yt_dlp, pandas, openpyxl"],
                     capture_output=True, text=True, timeout=5
@@ -639,17 +636,17 @@ class UpdateTab(QWidget):
             
         self._prepare_ui_for_operation()
         
-        self.worker = AIOWorker(
-            operation="scraper",
-            channel=self.channel_input.text().strip(),
-            output_dir=self.output_dir,
-            limit=self.scraper_limit.value()
-        )
+        kwargs = {
+            'channel': self.channel_input.text().strip(),
+            'output_dir': self.output_dir,
+            'limit': self.scraper_limit.value()
+        }
         
-        # Thêm boolean flags riêng
+        # Thêm boolean flags
         if self.include_shorts.isChecked():
-            self.worker.kwargs['include_shorts'] = True
+            kwargs['include_shorts'] = True
         
+        self.worker = AIOWorker(operation="scraper", **kwargs)
         self._connect_worker_signals()
         self.worker.start()
         
@@ -661,12 +658,12 @@ class UpdateTab(QWidget):
             
         self._prepare_ui_for_operation()
         
-        self.worker = AIOWorker(
-            operation="checker",
-            file_path=self.checker_file_input.text(),
-            max_workers=self.checker_workers.value()
-        )
+        kwargs = {
+            'file_path': self.checker_file_input.text(),
+            'max_workers': self.checker_workers.value()
+        }
         
+        self.worker = AIOWorker(operation="checker", **kwargs)
         self._connect_worker_signals()
         self.worker.start()
         
@@ -701,11 +698,7 @@ class UpdateTab(QWidget):
         if self.use_archive.isChecked():
             kwargs['use_archive'] = True
         
-        self.worker = AIOWorker(
-            operation="downloader",
-            **kwargs
-        )
-        
+        self.worker = AIOWorker(operation="downloader", **kwargs)
         self._connect_worker_signals()
         self.worker.start()
         
@@ -841,6 +834,7 @@ class UpdateTab(QWidget):
         
     def save_log(self):
         """Lưu log"""
+        from datetime import datetime
         file_path, _ = QFileDialog.getSaveFileName(
             self,
             "Lưu log",
