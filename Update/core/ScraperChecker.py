@@ -8,6 +8,10 @@ import yt_dlp
 import multiprocessing
 from typing import Callable, Optional, Union, List, Tuple
 
+# Command line interface support
+import argparse
+import sys
+
 TOPIC_OVERRIDES = {
     "UCdW9arh-ckZrMW_wHu4xPYA": ("UCNqz53FCc3mUg5NyzHxsXGQ", "Quang Lê Official"),
 }

@@ -10,6 +10,7 @@ from .tabs.main_processing_tab import MainProcessingTab
 from .tabs.royalty_tab import RoyaltyTab
 from .tabs.settings_tab import SettingsTab
 from .tabs.help_tab import HelpTab
+from .tabs.update_tab import UpdateTab
 from services.settings import Settings
 from services.logger import Logger
 
@@ -52,12 +53,14 @@ class MainWindow(QMainWindow):
         # Tạo các tab
         self.main_tab = MainProcessingTab(self.settings, self.logger)
         self.royalty_tab = RoyaltyTab(self.logger)
+        self.update_tab = UpdateTab(self.logger)
         self.settings_tab = SettingsTab(self.settings, self)
         self.help_tab = HelpTab()
         
         # Thêm các tab với icons
         self.tab_widget.addTab(self.main_tab, "🏠 Xử lý chính")
         self.tab_widget.addTab(self.royalty_tab, "💎 Nhuận bút")
+        self.tab_widget.addTab(self.update_tab, "🚀 AIO Tool")
         self.tab_widget.addTab(self.settings_tab, "⚙️ Cài đặt")
         self.tab_widget.addTab(self.help_tab, "❓ Hướng dẫn")
         
@@ -94,6 +97,11 @@ class MainWindow(QMainWindow):
         royalty_action.setShortcut("F6")
         royalty_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(1))
         tools_menu.addAction(royalty_action)
+        
+        aio_action = QAction("&AIO Tool", self)
+        aio_action.setShortcut("F7")
+        aio_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(2))
+        tools_menu.addAction(aio_action)
         
         # Help menu
         help_menu = menubar.addMenu("&Help")

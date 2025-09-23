@@ -196,6 +196,113 @@ class HelpTab(QWidget):
         layout.addWidget(help_text)
         return widget
         
+    def _create_aio_help(self) -> QWidget:
+        """Tạo hướng dẫn AIO Tool"""
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        
+        help_text = QTextEdit()
+        help_text.setReadOnly(True)
+        help_text.setHtml("""
+        <h2>🚀 Hướng dẫn sử dụng AIO YouTube Tool</h2>
+        
+        <h3>📋 Tổng quan:</h3>
+        <p>AIO Tool tích hợp 4 chức năng chính để làm việc với YouTube:</p>
+        <ul>
+            <li><b>🔍 Scraper:</b> Lấy danh sách video từ kênh YouTube</li>
+            <li><b>✅ Checker:</b> Kiểm tra trạng thái video từ danh sách</li>
+            <li><b>⬇️ Downloader:</b> Tải video với nhiều tùy chọn chất lượng</li>
+            <li><b>📊 Enricher:</b> Lấy metadata chi tiết (tags, chapters, transcript)</li>
+        </ul>
+        
+        <h3>🔍 Scraper - Lấy danh sách video:</h3>
+        <ol>
+            <li><b>Nhập kênh:</b>
+                <ul>
+                    <li>URL đầy đủ: https://www.youtube.com/channel/UC...</li>
+                    <li>Channel ID: UC... (11 ký tự)</li>
+                    <li>Handle: @channelname</li>
+                    <li>Custom URL: /c/channelname</li>
+                </ul>
+            </li>
+            <li><b>Cấu hình:</b>
+                <ul>
+                    <li>Giới hạn video: 10-1000 (mặc định 200)</li>
+                    <li>Bao gồm Shorts: Lấy cả video ngắn</li>
+                </ul>
+            </li>
+            <li><b>Kết quả:</b> File Excel với thông tin video cơ bản</li>
+        </ol>
+        
+        <h3>✅ Checker - Kiểm tra trạng thái video:</h3>
+        <ol>
+            <li><b>File đầu vào:</b> Excel/CSV có cột "ID Video"</li>
+            <li><b>Chức năng:</b>
+                <ul>
+                    <li>Kiểm tra video còn tồn tại không</li>
+                    <li>Cập nhật thông tin mới nhất</li>
+                    <li>Phát hiện video bị xóa/private</li>
+                </ul>
+            </li>
+            <li><b>Hiệu năng:</b> 1-8 luồng đồng thời</li>
+        </ol>
+        
+        <h3>⬇️ Downloader - Tải video:</h3>
+        <ol>
+            <li><b>Đầu vào:</b>
+                <ul>
+                    <li>Video ID/URL đơn lẻ</li>
+                    <li>File Excel/CSV có danh sách</li>
+                    <li>Playlist/Channel URL</li>
+                </ul>
+            </li>
+            <li><b>Chất lượng:</b>
+                <ul>
+                    <li>bestvideo+bestaudio: Chất lượng cao nhất</li>
+                    <li>720p/480p: Chất lượng cố định</li>
+                    <li>Audio only: Chỉ tải âm thanh (MP3)</li>
+                </ul>
+            </li>
+            <li><b>Tùy chọn nâng cao:</b>
+                <ul>
+                    <li>Cookies: Bypass giới hạn địa lý</li>
+                    <li>Proxy: Sử dụng proxy server</li>
+                    <li>aria2c: Tăng tốc tải xuống</li>
+                    <li>Archive: Tránh tải trùng</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>🔧 Mở AIO Tool đầy đủ:</h3>
+        <p>Nhấn nút "Mở AIO Tool đầy đủ" để:</p>
+        <ul>
+            <li>Truy cập giao diện Flet hiện đại</li>
+            <li>Sử dụng tính năng Enricher</li>
+            <li>Cấu hình chi tiết hơn</li>
+            <li>Xem progress real-time</li>
+        </ul>
+        
+        <h3>⚠️ Lưu ý quan trọng:</h3>
+        <ul>
+            <li><b>yt-dlp:</b> Thư viện cập nhật thường xuyên, có thể cần update</li>
+            <li><b>YouTube API:</b> Có thể thay đổi, gây lỗi tạm thời</li>
+            <li><b>Cookies:</b> Cần thiết cho video có giới hạn</li>
+            <li><b>Rate limiting:</b> Tránh spam request quá nhanh</li>
+        </ul>
+        
+        <h3>🛠️ Khắc phục sự cố:</h3>
+        <table border="1" cellpadding="5">
+            <tr><th>Lỗi</th><th>Nguyên nhân</th><th>Giải pháp</th></tr>
+            <tr><td>HTTP 403</td><td>Bị chặn IP</td><td>Sử dụng proxy/VPN</td></tr>
+            <tr><td>Video unavailable</td><td>Bị xóa/private</td><td>Kiểm tra URL</td></tr>
+            <tr><td>Format not available</td><td>Chất lượng không hỗ trợ</td><td>Chọn "best"</td></tr>
+            <tr><td>Download slow</td><td>Kết nối chậm</td><td>Giảm concurrent fragments</td></tr>
+        </table>
+        """)
+        
+        layout.addWidget(help_text)
+        return widget
+        
     def _create_faq_help(self) -> QWidget:
         """Tạo FAQ"""
         widget = QWidget()
