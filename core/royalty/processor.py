@@ -86,15 +86,24 @@ class RoyaltyProcessor:
         Returns: (success, message)
         """
         try:
+            if log_callback:
+                log_callback("🔍 Đang kiểm tra file đầu vào...")
+                
             # Đọc file Excel
             df = pd.read_excel(input_path, engine='openpyxl')
 
             if df.empty:
-                return False, "File Excel không có dữ liệu"
+                return False, "❌ File Excel không có dữ liệu hoặc định dạng không đúng"
+                
+            if log_callback:
+                log_callback(f"📊 Đã đọc {len(df)} dòng dữ liệu")
 
             # Xử lý từng dòng
             total_rows = len(df)
             processed_data = []
+            
+            if log_callback:
+                log_callback("⚙️ Bắt đầu xử lý và tính toán nhuận bút...")
 
             for idx, row in df.iterrows():
                 if progress_callback:
@@ -104,6 +113,9 @@ class RoyaltyProcessor:
                 # +2 vì Excel bắt đầu từ 1 và có header
                 processed_row = self._process_row(row, idx + 2)
                 processed_data.append(processed_row)
+                
+            if log_callback:
+                log_callback("💾 Đang tạo file Excel với định dạng...")
 
             # Tạo DataFrame mới với dữ liệu đã xử lý
             result_df = pd.DataFrame(processed_data)
@@ -123,13 +135,20 @@ class RoyaltyProcessor:
 
             if success:
                 if log_callback:
-                    log_callback("✅ Đã thêm cột Link YouTube với timestamp ở cuối file")
-                return True, f"Xử lý thành công. Kết quả lưu tại: {output_path}"
+                    log_callback("✅ Hoàn tất! Đã thêm cột Link YouTube với timestamp")
+                    log_callback(f"📁 File kết quả: {output_path}")
+                return True, f"✅ Xử lý thành công!\n\n📁 Kết quả đã được lưu tại:\n{output_path}\n\n🔗 File bao gồm:\n• Mức nhuận bút được tính tự động\n• Link YouTube với timestamp\n• Định dạng Excel chuyên nghiệp"
             else:
-                return False, "Lỗi khi ghi file Excel"
+                return False, "❌ Lỗi khi ghi file Excel. Vui lòng kiểm tra:\n• File kết quả có đang mở không?\n• Có quyền ghi vào thư mục không?"
 
         except Exception as e:
-            return False, f"Lỗi xử lý file: {str(e)}"
+            error_msg = str(e)
+            if "Permission denied" in error_msg:
+                return False, "❌ Lỗi quyền truy cập!\n\nVui lòng:\n• Đóng file Excel nếu đang mở\n• Chạy ứng dụng với quyền Administrator\n• Kiểm tra quyền ghi vào thư mục"
+            elif "No such file" in error_msg:
+                return False, "❌ Không tìm thấy file!\n\nVui lòng kiểm tra:\n• Đường dẫn file có đúng không?\n• File có bị di chuyển hoặc xóa không?"
+            else:
+                return False, f"❌ Lỗi không xác định:\n\n{error_msg}\n\nVui lòng liên hệ hỗ trợ kỹ thuật."
 
     def _process_row(self, row: pd.Series, excel_row_num: int) -> Dict:
         """Xử lý một dòng dữ liệu"""

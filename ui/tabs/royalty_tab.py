@@ -249,11 +249,37 @@ class RoyaltyTab(QWidget):
         )
         
         if file_path:
-            self.input_file_path = file_path
-            self.file_label.setText(f"Đã chọn: {Path(file_path).name}")
-            self.file_label.setStyleSheet("font-weight: 700; padding: 8px; color: rgba(34, 197, 94, 0.9);")
-            self.process_btn.setEnabled(True)
-            self.add_log(f"Đã chọn file: {Path(file_path).name}")
+            # Kiểm tra file có tồn tại và đọc được không
+            try:
+                import pandas as pd
+                test_df = pd.read_excel(file_path, nrows=1)
+                
+                self.input_file_path = file_path
+                self.file_label.setText(f"✅ Đã chọn: {Path(file_path).name}")
+                self.file_label.setStyleSheet("font-weight: 700; padding: 8px; color: rgba(34, 197, 94, 0.9);")
+                self.process_btn.setEnabled(True)
+                self.add_log(f"📂 Đã chọn file: {Path(file_path).name}")
+                
+                # Hiển thị thông tin file
+                full_df = pd.read_excel(file_path)
+                self.add_log(f"📊 File chứa {len(full_df)} dòng dữ liệu")
+                
+                # Kiểm tra các cột cần thiết
+                required_cols = ['Hình thức sử dụng', 'Thời lượng']
+                missing_cols = [col for col in required_cols if col not in full_df.columns]
+                
+                if missing_cols:
+                    self.add_log(f"⚠️ Cảnh báo: Thiếu cột {', '.join(missing_cols)}")
+                else:
+                    self.add_log("✅ File có đầy đủ các cột cần thiết")
+                    
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "❌ Lỗi đọc file",
+                    f"Không thể đọc file Excel!\n\nLỗi: {str(e)}\n\nVui lòng kiểm tra:\n• File có đúng định dạng Excel không?\n• File có bị hỏng không?\n• File có đang mở trong ứng dụng khác không?"
+                )
+                return
             
     def _recalculate_rates(self):
         """Tính lại mức nửa bài và gia hạn"""
@@ -279,6 +305,7 @@ class RoyaltyTab(QWidget):
         """Thu thập dữ liệu nhuận bút từ form"""
         royalty_dict = {}
         has_valid_data = False
+        errors = []
         
         for usage_type, inputs in self.rate_inputs.items():
             try:
@@ -292,20 +319,33 @@ class RoyaltyTab(QWidget):
                     has_valid_data = True
                     
             except (ValueError, TypeError) as e:
-                self.add_log(f"Lỗi nhập liệu cho {usage_type}: {e}")
-                return None
+                errors.append(f"• {usage_type.title()}: {e}")
+                
+        if errors:
+            error_msg = "❌ Lỗi nhập liệu:\n\n" + "\n".join(errors) + "\n\nVui lòng kiểm tra và nhập lại các giá trị hợp lệ."
+            QMessageBox.warning(self, "Lỗi dữ liệu", error_msg)
+            return None
                 
         if not has_valid_data:
-            self.add_log("Vui lòng nhập ít nhất một mức nhuận bút!")
+            QMessageBox.warning(
+                self, 
+                "Thiếu dữ liệu", 
+                "⚠️ Vui lòng nhập ít nhất một mức nhuận bút!\n\nHướng dẫn:\n• Nhập mức nhuận bút đầy đủ cho các loại hình cần tính\n• Hệ thống sẽ tự động tính mức nửa bài và gia hạn"
+            )
             return None
             
-        self.add_log(f"Đã thu thập mức nhuận bút cho {len(royalty_dict)} loại hình")
+        valid_types = [k for k, v in royalty_dict.items() if v[0] > 0]
+        self.add_log(f"✅ Đã cấu hình mức nhuận bút cho {len(valid_types)} loại hình: {', '.join([t.title() for t in valid_types])}")
         return royalty_dict
         
     def process_file(self):
         """Xử lý file Excel"""
         if not self.input_file_path:
-            QMessageBox.warning(self, "Cảnh báo", "Vui lòng chọn file trước!")
+            QMessageBox.warning(
+                self, 
+                "⚠️ Thiếu file đầu vào", 
+                "Vui lòng chọn file Excel trước khi xử lý!\n\n📋 Hướng dẫn:\n• Nhấn nút 'Chọn file Excel'\n• Chọn file đã được xử lý ở tab 'Xử lý chính'\n• File phải có các cột: Thời lượng, Hình thức sử dụng"
+            )
             return
             
         # Collect royalty data
@@ -313,9 +353,14 @@ class RoyaltyTab(QWidget):
         if not royalty_dict:
             return
             
+        self.add_log("🚀 Bắt đầu xử lý file nhuận bút...")
+        
         # Generate output path
         input_path = Path(self.input_file_path)
         output_path = input_path.parent / f"{input_path.stem}_NhuanBut_Premium.xlsx"
+        
+        self.add_log(f"📁 File đầu vào: {input_path.name}")
+        self.add_log(f"📁 File kết quả: {output_path.name}")
         
         # Disable UI during processing
         self.process_btn.setEnabled(False)
@@ -334,7 +379,6 @@ class RoyaltyTab(QWidget):
         
         # Start processing
         self.worker.start()
-        self.add_log("Bắt đầu xử lý file nhuận bút...")
         
     def _update_progress(self, value: float):
         """Cập nhật tiến trình"""
@@ -349,11 +393,27 @@ class RoyaltyTab(QWidget):
         if success:
             self.progress_label.setText("Hoàn tất!")
             self.add_log(f"✅ {message}")
-            QMessageBox.information(self, "Thành công", message)
+            
+            # Tạo custom success dialog
+            success_dialog = QMessageBox(self)
+            success_dialog.setWindowTitle("🎉 Thành công")
+            success_dialog.setText("Xử lý file nhuận bút thành công!")
+            success_dialog.setDetailedText(message)
+            success_dialog.setIcon(QMessageBox.Icon.Information)
+            success_dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
+            success_dialog.exec()
         else:
             self.progress_label.setText("Lỗi!")
             self.add_log(f"❌ {message}")
-            QMessageBox.critical(self, "Lỗi", message)
+            
+            # Tạo custom error dialog
+            error_dialog = QMessageBox(self)
+            error_dialog.setWindowTitle("❌ Lỗi xử lý")
+            error_dialog.setText("Có lỗi xảy ra khi xử lý file!")
+            error_dialog.setDetailedText(message)
+            error_dialog.setIcon(QMessageBox.Icon.Critical)
+            error_dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
+            error_dialog.exec()
             
     def add_log(self, message: str):
         """Thêm log với timestamp"""
