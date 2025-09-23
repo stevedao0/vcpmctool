@@ -110,8 +110,17 @@ class AIOWorker(QThread):
         # Thêm arguments dựa trên operation
         cmd.extend(['--operation', self.operation])
         
+        # Xử lý arguments đúng cách
         for key, value in self.kwargs.items():
-            if value is not None and value != '':
+            if value is None or value == '':
+                continue
+                
+            # Xử lý boolean flags
+            if isinstance(value, bool):
+                if value:  # Chỉ thêm flag nếu True
+                    cmd.append(f'--{key}')
+            else:
+                # Xử lý string/number values
                 cmd.extend([f'--{key}', str(value)])
                 
         return cmd
@@ -634,9 +643,12 @@ class UpdateTab(QWidget):
             operation="scraper",
             channel=self.channel_input.text().strip(),
             output_dir=self.output_dir,
-            limit=self.scraper_limit.value(),
-            include_shorts=self.include_shorts.isChecked()
+            limit=self.scraper_limit.value()
         )
+        
+        # Thêm boolean flags riêng
+        if self.include_shorts.isChecked():
+            self.worker.kwargs['include_shorts'] = True
         
         self._connect_worker_signals()
         self.worker.start()
@@ -652,7 +664,6 @@ class UpdateTab(QWidget):
         self.worker = AIOWorker(
             operation="checker",
             file_path=self.checker_file_input.text(),
-            output_dir=self.output_dir,
             max_workers=self.checker_workers.value()
         )
         
@@ -667,18 +678,32 @@ class UpdateTab(QWidget):
             
         self._prepare_ui_for_operation()
         
+        # Chuẩn bị kwargs
+        kwargs = {
+            'input_value': self.downloader_input.text().strip(),
+            'output_dir': self.output_dir,
+            'quality': self.quality_combo.currentText(),
+            'max_workers': self.download_workers.value(),
+            'concurrent_frags': self.concurrent_frags.value()
+        }
+        
+        # Thêm optional parameters
+        if self.cookies_input.text().strip():
+            kwargs['cookies_file'] = self.cookies_input.text().strip()
+        if self.proxy_input.text().strip():
+            kwargs['proxy'] = self.proxy_input.text().strip()
+            
+        # Thêm boolean flags
+        if self.audio_only.isChecked():
+            kwargs['audio_only'] = True
+        if self.use_aria2.isChecked():
+            kwargs['enable_aria2'] = True
+        if self.use_archive.isChecked():
+            kwargs['use_archive'] = True
+        
         self.worker = AIOWorker(
             operation="downloader",
-            input_value=self.downloader_input.text().strip(),
-            output_dir=self.output_dir,
-            quality=self.quality_combo.currentText(),
-            audio_only=self.audio_only.isChecked(),
-            max_workers=self.download_workers.value(),
-            concurrent_frags=self.concurrent_frags.value(),
-            cookies_file=self.cookies_input.text() or None,
-            proxy=self.proxy_input.text() or None,
-            enable_aria2=self.use_aria2.isChecked(),
-            use_archive=self.use_archive.isChecked()
+            **kwargs
         )
         
         self._connect_worker_signals()
