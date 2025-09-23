@@ -78,6 +78,7 @@ class AIOWorker(QThread):
         """Tìm AIO executable"""
         base_dir = Path(__file__).parent.parent.parent
         possible_paths = [
+            base_dir / "Update" / "cli_wrapper.py",
             base_dir / "Update" / "main.py",
             base_dir / "Update" / "aio_tool.exe",
             base_dir / "aio_tool.exe"
@@ -90,13 +91,18 @@ class AIOWorker(QThread):
         
     def _build_command(self, aio_path: str) -> List[str]:
         """Xây dựng command line"""
-        # Sử dụng CLI wrapper thay vì main.py
-        base_dir = Path(aio_path).parent
-        cli_wrapper = base_dir / "cli_wrapper.py"
+        # Kiểm tra dependencies trước
+        check_cmd = [sys.executable, "-c", "import yt_dlp, pandas, openpyxl; print('OK')"]
+        try:
+            import subprocess
+            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
+            if result.returncode != 0 or "OK" not in result.stdout:
+                raise Exception("Missing dependencies: yt-dlp, pandas, or openpyxl")
+        except Exception as e:
+            raise Exception(f"Dependency check failed: {e}")
         
-        if cli_wrapper.exists():
-            cmd = [sys.executable, str(cli_wrapper)]
-        elif aio_path.endswith('.py'):
+        # Xây dựng command
+        if aio_path.endswith('.py'):
             cmd = [sys.executable, aio_path]
         else:
             cmd = [aio_path]
@@ -177,6 +183,15 @@ class UpdateTab(QWidget):
         title_label.setStyleSheet("font-size: 24px; font-weight: 700; margin-bottom: 20px; text-align: center;")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)
+        
+        # Dependency check warning
+        self.dep_warning = QLabel("")
+        self.dep_warning.setStyleSheet("color: #f59e0b; background: rgba(251, 191, 36, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px;")
+        self.dep_warning.setVisible(False)
+        layout.addWidget(self.dep_warning)
+        
+        # Check dependencies on startup
+        self._check_dependencies_async()
         
         # Main splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -532,6 +547,10 @@ class UpdateTab(QWidget):
             
     def start_operation(self):
         """Bắt đầu operation"""
+        # Kiểm tra dependencies trước khi bắt đầu
+        if not self._check_dependencies():
+            return
+            
         current_tab = self.tab_widget.currentIndex()
         
         if current_tab == 0:  # Scraper
@@ -541,6 +560,68 @@ class UpdateTab(QWidget):
         elif current_tab == 2:  # Downloader
             self._start_downloader()
             
+    def _check_dependencies(self) -> bool:
+        """Kiểm tra dependencies cần thiết"""
+        try:
+            import subprocess
+            check_cmd = [sys.executable, "-c", "import yt_dlp, pandas, openpyxl"]
+            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
+            
+            if result.returncode != 0:
+                missing_deps = []
+                if "yt_dlp" in result.stderr:
+                    missing_deps.append("yt-dlp")
+                if "pandas" in result.stderr:
+                    missing_deps.append("pandas")
+                if "openpyxl" in result.stderr:
+                    missing_deps.append("openpyxl")
+                    
+                QMessageBox.critical(
+                    self,
+                    "❌ Thiếu Dependencies",
+                    f"Cần cài đặt các thư viện sau:\n\n"
+                    f"📦 {', '.join(missing_deps) if missing_deps else 'yt-dlp, pandas, openpyxl'}\n\n"
+                    f"💡 Cách cài đặt:\n"
+                    f"pip install yt-dlp pandas openpyxl\n\n"
+                    f"🔧 Hoặc chạy:\n"
+                    f"pip install -r Update/requirements.txt"
+                )
+                return False
+                
+            return True
+            
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "⚠️ Không thể kiểm tra dependencies",
+                f"Lỗi: {str(e)}\n\nVui lòng đảm bảo đã cài đặt:\n"
+                f"• yt-dlp\n• pandas\n• openpyxl"
+            )
+            return False
+            
+    def _check_dependencies_async(self):
+        """Kiểm tra dependencies không đồng bộ"""
+        def check():
+            try:
+                import subprocess
+                result = subprocess.run(
+                    [sys.executable, "-c", "import yt_dlp, pandas, openpyxl"],
+                    capture_output=True, text=True, timeout=5
+                )
+                if result.returncode != 0:
+                    self.dep_warning.setText(
+                        "⚠️ Thiếu dependencies: yt-dlp, pandas, openpyxl. "
+                        "Chạy: pip install -r Update/requirements.txt"
+                    )
+                    self.dep_warning.setVisible(True)
+                else:
+                    self.dep_warning.setVisible(False)
+            except Exception:
+                self.dep_warning.setText("⚠️ Không thể kiểm tra dependencies")
+                self.dep_warning.setVisible(True)
+                
+        threading.Thread(target=check, daemon=True).start()
+        
     def _start_scraper(self):
         """Bắt đầu scraper"""
         if not self.channel_input.text().strip():

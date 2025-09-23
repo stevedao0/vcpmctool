@@ -12,10 +12,19 @@ import json
 from pathlib import Path
 
 # Add core to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'core'))
+current_dir = os.path.dirname(__file__)
+core_dir = os.path.join(current_dir, 'core')
+sys.path.insert(0, core_dir)
 
-from ScraperChecker import run_scraper, run_checker, run_downloader
-from enricher import enrich
+# Try to import with better error handling
+try:
+    from ScraperChecker import run_scraper, run_checker, run_downloader
+    from enricher import enrich
+    MODULES_AVAILABLE = True
+except ImportError as e:
+    print(f"ERROR:Missing dependencies: {e}", file=sys.stderr)
+    print("ERROR:Please install: pip install yt-dlp pandas openpyxl", file=sys.stderr)
+    MODULES_AVAILABLE = False
 
 
 def progress_callback(done: int, total: int):
@@ -35,6 +44,10 @@ def detail_callback(data: dict):
 
 
 def main():
+    if not MODULES_AVAILABLE:
+        print("ERROR:Required modules not available", file=sys.stderr)
+        sys.exit(1)
+        
     parser = argparse.ArgumentParser(description="AIO YouTube Tool CLI")
     parser.add_argument("--operation", required=True, 
                        choices=["scraper", "checker", "downloader", "enricher"],
