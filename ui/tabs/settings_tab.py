@@ -99,7 +99,7 @@ class SettingsTab(QWidget):
         # Theme selection
         self.theme_combo = QComboBox()
         self.theme_combo.setMinimumWidth(150)
-        self.theme_combo.addItems(["Sáng (Light)", "Tối (Dark)", "Premium Glass"])
+        self.theme_combo.addItems(["🌞 Sáng (Light Glass)", "🌙 Tối (Dark Glass)", "✨ Premium Glass"])
         self.theme_combo.currentTextChanged.connect(self._on_theme_changed)
         layout.addRow("Chế độ hiển thị:", self.theme_combo)
         
@@ -245,13 +245,13 @@ class SettingsTab(QWidget):
         # Theme
         if hasattr(self.settings, 'theme_mode'):
             if self.settings.theme_mode == "dark":
-                self.theme_combo.setCurrentText("Tối (Dark)")
+                self.theme_combo.setCurrentText("🌙 Tối (Dark Glass)")
             elif self.settings.theme_mode == "light":
-                self.theme_combo.setCurrentText("Sáng (Light)")
+                self.theme_combo.setCurrentText("🌞 Sáng (Light Glass)")
             else:
-                self.theme_combo.setCurrentText("Premium Glass")
+                self.theme_combo.setCurrentText("✨ Premium Glass")
         else:
-            self.theme_combo.setCurrentText("Premium Glass")
+            self.theme_combo.setCurrentText("✨ Premium Glass")
             
         # Font size
         if hasattr(self.settings, 'font_size'):
@@ -267,9 +267,9 @@ class SettingsTab(QWidget):
             
     def _on_theme_changed(self, theme_text):
         """Xử lý khi thay đổi theme"""
-        if "Sáng" in theme_text:
+        if "🌞" in theme_text or "Sáng" in theme_text:
             theme_mode = "light"
-        elif "Tối" in theme_text:
+        elif "🌙" in theme_text or "Tối" in theme_text:
             theme_mode = "dark"
         else:
             theme_mode = "premium"
@@ -289,9 +289,9 @@ class SettingsTab(QWidget):
         try:
             # Update theme
             theme_text = self.theme_combo.currentText()
-            if "Sáng" in theme_text:
+            if "🌞" in theme_text or "Sáng" in theme_text:
                 new_theme = "light"
-            elif "Tối" in theme_text:
+            elif "🌙" in theme_text or "Tối" in theme_text:
                 new_theme = "dark"
             else:
                 new_theme = "premium"
@@ -326,7 +326,7 @@ class SettingsTab(QWidget):
         
         if reply == QMessageBox.StandardButton.Yes:
             # Reset to defaults
-            self.theme_combo.setCurrentText("Premium Glass")
+            self.theme_combo.setCurrentText("✨ Premium Glass")
             self.font_size_spin.setValue(9)
             self.auto_proper_cb.setChecked(True)
             self.auto_backup_cb.setChecked(True)

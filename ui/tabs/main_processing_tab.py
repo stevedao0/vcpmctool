@@ -129,6 +129,7 @@ class MainProcessingTab(QWidget):
         self.process_btn.clicked.connect(self.process_files)
         self.process_btn.setProperty("class", "success")
         self.process_btn.setMinimumHeight(50)
+        self.process_btn.setStyleSheet("font-size: 16px; font-weight: 700;")
         layout.addWidget(self.process_btn)
         
         # Progress bar
@@ -138,7 +139,7 @@ class MainProcessingTab(QWidget):
         
         # Status label
         self.status_label = QLabel("Sẵn sàng")
-        self.status_label.setStyleSheet("color: #666666; font-style: italic;")
+        self.status_label.setStyleSheet("font-style: italic; font-weight: 500; padding: 8px;")
         layout.addWidget(self.status_label)
         
         layout.addStretch()

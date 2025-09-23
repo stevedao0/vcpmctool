@@ -89,7 +89,7 @@ class RoyaltyTab(QWidget):
         
         # Title
         title_label = QLabel("💎 Tính toán nhuận bút Premium")
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: white; margin-bottom: 10px;")
+        title_label.setStyleSheet("font-size: 24px; font-weight: 700; margin-bottom: 10px; text-align: center;")
         layout.addWidget(title_label)
         
         # File selection
@@ -118,7 +118,9 @@ class RoyaltyTab(QWidget):
         self.process_btn = QPushButton("🚀 Xử lý file Premium")
         self.process_btn.setEnabled(False)
         self.process_btn.clicked.connect(self.process_file)
+        self.process_btn.setProperty("class", "primary")
         self.process_btn.setMinimumHeight(50)
+        self.process_btn.setStyleSheet("font-size: 16px; font-weight: 700;")
         layout.addWidget(self.process_btn)
         
         # Progress
@@ -152,7 +154,7 @@ class RoyaltyTab(QWidget):
         
         self.file_label = QLabel("Chưa chọn file")
         self.file_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.file_label.setStyleSheet("color: #888; font-style: italic;")
+        self.file_label.setStyleSheet("font-style: italic; font-weight: 500; padding: 8px;")
         layout.addWidget(self.file_label)
         
         return group
@@ -249,7 +251,7 @@ class RoyaltyTab(QWidget):
         if file_path:
             self.input_file_path = file_path
             self.file_label.setText(f"Đã chọn: {Path(file_path).name}")
-            self.file_label.setStyleSheet("color: #28a745; font-weight: bold;")
+            self.file_label.setStyleSheet("font-weight: 700; padding: 8px; color: rgba(34, 197, 94, 0.9);")
             self.process_btn.setEnabled(True)
             self.add_log(f"Đã chọn file: {Path(file_path).name}")
             

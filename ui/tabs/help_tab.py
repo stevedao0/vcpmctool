@@ -20,7 +20,7 @@ class HelpTab(QWidget):
         
         # Title
         title = QLabel("❓ Hướng dẫn sử dụng VCPMC Tool")
-        title.setFont(QFont("", 18, QFont.Weight.Bold))
+        title.setStyleSheet("font-size: 24px; font-weight: 700; margin-bottom: 20px;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
         
@@ -50,6 +50,7 @@ class HelpTab(QWidget):
         
         contact_btn = QPushButton("📧 Liên hệ hỗ trợ")
         contact_btn.clicked.connect(self._open_contact)
+        contact_btn.setProperty("class", "primary")
         button_layout.addWidget(contact_btn)
         
         button_layout.addStretch()
